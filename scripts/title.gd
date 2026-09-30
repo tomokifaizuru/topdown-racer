@@ -23,6 +23,9 @@ func _ready() -> void:
 
 
 func _on_play() -> void:
+	play_button.disabled = true
+	# Small delay lets the touch/mouse release finish before the title is freed.
+	await get_tree().create_timer(0.08).timeout
 	get_tree().change_scene_to_file("res://scenes/race.tscn")
 
 

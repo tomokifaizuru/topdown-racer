@@ -178,11 +178,14 @@ func set_paused(p: bool) -> void:
 
 func restart() -> void:
 	get_tree().paused = false
+	# Small delay lets the touch/mouse release finish before the scene is freed.
+	await get_tree().create_timer(0.08).timeout
 	get_tree().reload_current_scene()
 
 
 func go_to_menu() -> void:
 	get_tree().paused = false
+	await get_tree().create_timer(0.08).timeout
 	get_tree().change_scene_to_file("res://scenes/title.tscn")
 
 
