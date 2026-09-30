@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/race.gd" id="1_race"]
-[ext_resource type="PackedScene" path="res://scenes/track.tscn" id="2_track"]
+[ext_resource type="PackedScene" path="res://scenes/tracks/rookie_ring.tscn" id="2_track"]
 [ext_resource type="Script" path="res://scripts/skid_marks.gd" id="3_skid"]
 [ext_resource type="PackedScene" path="res://scenes/car.tscn" id="4_car"]
 [ext_resource type="Script" path="res://scripts/race_camera.gd" id="5_cam"]
@@ -9,15 +9,26 @@
 [ext_resource type="PackedScene" path="res://scenes/touch_controls.tscn" id="7_touch"]
 [ext_resource type="AudioStream" path="res://audio/beep.wav" id="8_beep"]
 [ext_resource type="AudioStream" path="res://audio/go.wav" id="9_go"]
+[ext_resource type="Script" path="res://scripts/ghost_car.gd" id="10_ghost"]
+[ext_resource type="Script" path="res://scripts/difficulty_profile.gd" id="15_diffscript"]
+[ext_resource type="Resource" path="res://difficulty/easy.tres" id="11_easy"]
+[ext_resource type="Resource" path="res://difficulty/normal.tres" id="12_normal"]
+[ext_resource type="Resource" path="res://difficulty/hard.tres" id="13_hard"]
+[ext_resource type="Resource" path="res://difficulty/wtf.tres" id="14_wtf"]
 
 [node name="Race" type="Node2D"]
 script = ExtResource("1_race")
+difficulty_profiles = Array[ExtResource("15_diffscript")]([ExtResource("11_easy"), ExtResource("12_normal"), ExtResource("13_hard"), ExtResource("14_wtf")])
 
 [node name="Track" parent="." instance=ExtResource("2_track")]
 
 [node name="SkidMarks" type="Node2D" parent="."]
 z_index = 1
 script = ExtResource("3_skid")
+
+[node name="Ghost" type="Node2D" parent="."]
+z_index = 2
+script = ExtResource("10_ghost")
 
 [node name="Cars" type="Node2D" parent="."]
 z_index = 2
@@ -32,7 +43,7 @@ car_number = 7
 car_name = "Blaze"
 body_color = Color(0.9, 0.2, 0.18, 1)
 car_number = 3
-ai_speed_factor = 0.95
+ai_speed_factor = 1.0
 ai_lane_offset = -25.0
 
 [node name="CPU2" parent="Cars" instance=ExtResource("4_car")]
@@ -40,14 +51,45 @@ car_name = "Bolt"
 body_color = Color(0.98, 0.78, 0.15, 1)
 stripe_color = Color(0.1, 0.1, 0.1, 1)
 car_number = 5
-ai_speed_factor = 0.92
+ai_speed_factor = 0.99
 ai_lane_offset = 25.0
 
 [node name="CPU3" parent="Cars" instance=ExtResource("4_car")]
 car_name = "Frost"
 body_color = Color(0.2, 0.75, 0.45, 1)
 car_number = 9
-ai_speed_factor = 0.9
+ai_speed_factor = 0.98
+
+[node name="CPU4" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Viper"
+body_color = Color(0.56, 0.27, 0.86, 1)
+car_number = 11
+ai_speed_factor = 0.97
+ai_lane_offset = -20.0
+
+[node name="CPU5" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Nova"
+body_color = Color(1, 0.5, 0.1, 1)
+stripe_color = Color(0.1, 0.1, 0.1, 1)
+car_number = 22
+ai_speed_factor = 0.96
+ai_lane_offset = 20.0
+
+[node name="CPU6" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Onyx"
+body_color = Color(0.16, 0.16, 0.18, 1)
+stripe_color = Color(0.95, 0.75, 0.2, 1)
+car_number = 44
+ai_speed_factor = 0.95
+ai_lane_offset = -10.0
+
+[node name="CPU7" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Coral"
+body_color = Color(1, 0.45, 0.62, 1)
+stripe_color = Color(0.2, 0.9, 0.95, 1)
+car_number = 88
+ai_speed_factor = 0.94
+ai_lane_offset = 10.0
 
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("5_cam")

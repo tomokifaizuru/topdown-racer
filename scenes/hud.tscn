@@ -209,10 +209,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -330.0
-offset_top = -290.0
-offset_right = 330.0
-offset_bottom = 290.0
+offset_left = -345.0
+offset_top = -335.0
+offset_right = 345.0
+offset_bottom = 335.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -224,14 +224,14 @@ alignment = 1
 [node name="Title" type="Label" parent="Root/FinishPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 46
 text = "RACE FINISHED"
 horizontal_alignment = 1
 
 [node name="PlaceLabel" type="Label" parent="Root/FinishPanel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "You finished 1st!"
 horizontal_alignment = 1
 

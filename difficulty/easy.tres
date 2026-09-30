@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DifficultyProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/difficulty_profile.gd" id="1_diff"]
+
+[resource]
+script = ExtResource("1_diff")
+display_name = "Easy"
+speed = 0.82
+corner_margin = 0.7
+acceleration = 0.85
+steering = 1.0
+grip = 1.0
+apex_cut = 0.0
+avoidance = 1.2
+rubber_band_ahead = 0.08
+rubber_band_behind = 0.0

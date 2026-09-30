@@ -2,14 +2,19 @@ class_name Car
 extends CharacterBody2D
 ## Arcade top-down car, used for BOTH the player and the AI opponents.
 ##
-## Tweak: open scenes/race.tscn, select Cars > Player (or CPU1/CPU2/CPU3) and edit
+## Tweak: open scenes/race.tscn, select Cars > Player (or CPU1..CPU7) and edit
 ## the values in the Inspector. To change ALL cars at once, edit scenes/car.tscn.
 ## Units: pixels and seconds. About 12 px = 1 metre (HUD km/h uses PIXELS_PER_METER).
 
 signal lap_completed(car: Car, lap_time: float)
 signal race_finished(car: Car)
+## Emitted when the car crosses the start line for the first time (Time Trial flying start).
+signal lap_started(car: Car)
 
 enum Driver { PLAYER, AI }
+## CURVATURE = AI reads the track curvature ahead and brakes just enough (default, v0.3).
+## SIMPLE = the old v0.2 heuristic (ai_corner_slowdown / ai_corner_angle_deg).
+enum CornerModel { CURVATURE, SIMPLE }
 
 const PIXELS_PER_METER := 12.0
 
@@ -92,6 +97,18 @@ const PIXELS_PER_METER := 12.0
 @export var ai_avoid_distance: float = 170.0
 ## How far (px) the AI moves sideways to avoid a car ahead.
 @export var ai_avoid_strength: float = 70.0
+## How the AI decides its corner speed (see CornerModel above).
+@export var ai_corner_model: CornerModel = CornerModel.CURVATURE
+## CURVATURE model: fraction of the car's steering the AI dares to use in corners, on top of
+## the difficulty setting (1.0 = as the difficulty says, lower = more careful/slower).
+@export_range(0.5, 1.3, 0.01) var ai_corner_margin: float = 1.0
+## CURVATURE model: fraction of brake_force the AI counts on when braking for a corner.
+@export_range(0.3, 1.0, 0.01) var ai_brake_margin: float = 0.7
+## Racing line: how much the AI cuts to the inside of corners (0 = follows the centre line,
+## 1 = uses most of the road). Usually set by the difficulty.
+@export_range(0.0, 1.0, 0.01) var ai_apex_cut: float = 0.0
+## Seconds of slow driving before a stuck AI car is put back on the track.
+@export var ai_respawn_after: float = 6.0
 
 # ------------------------------------------------------------- runtime state
 var track: Track
@@ -115,6 +132,16 @@ var on_grass := false
 var is_skidding := false
 ## Per-race AI speed multiplier (difficulty * random variation). Set by the race.
 var speed_jitter := 1.0
+## Corner margin from the difficulty profile (multiplied with ai_corner_margin). Set by the race.
+var difficulty_corner := 0.85
+## Avoidance multiplier from the difficulty profile. Set by the race.
+var difficulty_avoid := 1.0
+## Rubber-band speed multiplier, updated by the race (1.0 = off).
+var rubber_band := 1.0
+## Number of times this car was put back on track (debug/tests).
+var respawn_count := 0
+## True in Time Trial: the lap timer starts when crossing the line (flying lap).
+var flying_start := false
 
 var _steer := 0.0
 var _throttle := 0.0
@@ -214,7 +241,7 @@ func _ai_inputs(delta: float) -> Vector3:
 		_stuck_timer = 0.0
 		if spd > 150.0:
 			_stuck_total = 0.0
-	if _stuck_total > 6.0:
+	if _stuck_total > ai_respawn_after:
 		_respawn_on_track()
 		return Vector3.ZERO
 	var look := ai_lookahead + spd * ai_lookahead_per_speed
@@ -236,21 +263,30 @@ func _ai_inputs(delta: float) -> Vector3:
 			var side := rel.dot(right)
 			if abs(side) < 60.0:
 				var dir := -1.0 if side > 0.0 else 1.0
-				avoid += dir * ai_avoid_strength * (1.0 - d / ai_avoid_distance)
+				avoid += dir * ai_avoid_strength * difficulty_avoid * (1.0 - d / ai_avoid_distance)
 				if ahead < 80.0 and other.velocity.length() < spd:
 					must_slow = true
 	_avoid_offset = lerp(_avoid_offset, avoid, clamp(4.0 * delta, 0.0, 1.0))
 	var max_lat := track.road_width * 0.36
-	var lateral: float = clamp(ai_lane_offset + _avoid_offset, -max_lat, max_lat)
+	var apex := 0.0
+	if ai_apex_cut > 0.0:
+		# Aim for the inside of the coming bend (+curvature = right-hand bend = +right side).
+		var k_ahead := track.get_curvature(target_off + 40.0)
+		apex = signf(k_ahead) * clampf(absf(k_ahead) * 350.0, 0.0, 1.0) * ai_apex_cut * track.road_width * 0.3
+	var lateral: float = clamp(ai_lane_offset + _avoid_offset + apex, -max_lat, max_lat)
 	var target := track.sample_position(target_off) + track.get_right(target_off) * lateral
 	var ang := fwd.angle_to(target - global_position)
 	var steer: float = clamp(ang * ai_steer_gain, -1.0, 1.0)
-	# Corner speed: compare track direction just ahead vs further ahead.
-	var t1 := track.get_tangent(track_offset + 60.0)
-	var t2 := track.get_tangent(track_offset + 260.0 + spd * 0.45)
-	var corner: float = abs(t1.angle_to(t2))
-	var corner_amt: float = clamp(corner / deg_to_rad(ai_corner_angle_deg), 0.0, 1.0)
-	var target_speed := max_speed * ai_speed_factor * speed_jitter * (1.0 - ai_corner_slowdown * corner_amt)
+	var target_speed := max_speed * ai_speed_factor * speed_jitter * rubber_band
+	if ai_corner_model == CornerModel.SIMPLE:
+		# v0.2 model: compare track direction just ahead vs further ahead.
+		var t1 := track.get_tangent(track_offset + 60.0)
+		var t2 := track.get_tangent(track_offset + 260.0 + spd * 0.45)
+		var corner: float = abs(t1.angle_to(t2))
+		var corner_amt: float = clamp(corner / deg_to_rad(ai_corner_angle_deg), 0.0, 1.0)
+		target_speed *= 1.0 - ai_corner_slowdown * corner_amt
+	else:
+		target_speed = minf(target_speed, _corner_speed_limit(spd))
 	if on_grass:
 		target_speed = min(target_speed, max_speed * offroad_max_speed_factor)
 	if must_slow:
@@ -266,7 +302,26 @@ func _ai_inputs(delta: float) -> Vector3:
 	return Vector3(steer, thr, brk)
 
 
+## Highest speed that still lets the car brake in time for every bend in braking range.
+## The car's turn rate at speed v is steer * (1 - (1 - high_speed_steer_factor) * v / max_speed),
+## so a bend of curvature k can be taken at v = s / (k + s * (1 - h) / max_speed).
+func _corner_speed_limit(spd: float) -> float:
+	var s0 := deg_to_rad(steer_speed_deg) * difficulty_corner * ai_corner_margin
+	var hs := (1.0 - high_speed_steer_factor) / max_speed
+	var bdec := brake_force * ai_brake_margin
+	var horizon := spd * spd / (2.0 * bdec) + 140.0
+	var limit := INF
+	var d := 0.0
+	while d <= horizon:
+		var k := absf(track.get_curvature(track_offset + d))
+		var vc := s0 / (k + s0 * hs)
+		limit = minf(limit, sqrt(vc * vc + 2.0 * bdec * maxf(d - 30.0, 0.0)))
+		d += 40.0
+	return limit
+
+
 func _respawn_on_track() -> void:
+	respawn_count += 1
 	_stuck_total = 0.0
 	_stuck_timer = 0.0
 	global_position = track.sample_position(track_offset)
@@ -290,7 +345,7 @@ func _apply_physics(delta: float) -> void:
 	var right := transform.y
 	var fs := velocity.dot(fwd)
 	var ls := velocity.dot(right)
-	var top := max_speed * (offroad_max_speed_factor if on_grass else 1.0)
+	var top := max_speed * (offroad_max_speed_factor if on_grass else 1.0) * maxf(rubber_band, 1.0)
 
 	if _throttle > 0.0:
 		if fs < -5.0:
@@ -388,12 +443,15 @@ func _update_sounds() -> void:
 # ------------------------------------------------------------- laps
 ## Called by the Track's checkpoint gates.
 func on_checkpoint(index: int) -> void:
-	if track == null or has_finished or index != next_checkpoint:
+	if track == null or has_finished or index != next_checkpoint or not controls_enabled:
 		return
 	checkpoints_passed += 1
 	if index == 0:
 		if lap == 0:
 			lap = 1  # crossed the line after the standing start
+			if flying_start:
+				lap_start_time = race.race_time if race else 0.0
+			lap_started.emit(self)
 		else:
 			var now: float = race.race_time if race else 0.0
 			var lt := now - lap_start_time
@@ -403,7 +461,7 @@ func on_checkpoint(index: int) -> void:
 				best_lap_time = lt
 			lap_start_time = now
 			var total_laps: int = race.lap_count if race else 3
-			if lap >= total_laps:
+			if total_laps > 0 and lap >= total_laps:
 				has_finished = true
 				finish_time = now
 				race_finished.emit(self)

@@ -6,6 +6,7 @@ extends Control
 @export var track_line_width: float = 5.0
 @export var dot_radius: float = 6.0
 
+var ghost: Node2D  # Time Trial ghost (optional)
 var _track: Track
 var _cars: Array = []
 var _player: Node
@@ -54,6 +55,8 @@ func _draw() -> void:
 		if c == _player:
 			continue
 		draw_circle(c.global_position * _scale + _offset, dot_radius, c.body_color)
+	if ghost and ghost.visible:
+		draw_circle(ghost.global_position * _scale + _offset, dot_radius, Color(1, 1, 1, 0.55))
 	if _player:
 		var pp: Vector2 = _player.global_position * _scale + _offset
 		draw_circle(pp, dot_radius + 3.0, Color.WHITE)

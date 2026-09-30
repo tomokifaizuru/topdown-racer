@@ -29,6 +29,9 @@ var _blink := 0.0
 func setup(r: RaceManager) -> void:
 	race = r
 	minimap.setup(r.track, r.cars, r.player)
+	if r.is_time_trial():
+		pos_label.add_theme_font_size_override("font_size", 34)
+		minimap.ghost = r.ghost
 	pause_button.pressed.connect(_on_pause)
 	%ResumeButton.pressed.connect(_on_resume)
 	%PauseOptionsButton.pressed.connect(_on_pause_options)
@@ -98,16 +101,29 @@ func _process(delta: float) -> void:
 		return
 	var p := race.player
 	var total := race.cars.size()
-	pos_label.text = "%s/%d" % [RaceManager.ordinal(p.rank), total]
-	lap_label.text = "LAP %d/%d" % [clamp(max(p.lap, 1), 1, race.lap_count), race.lap_count]
-	if p.has_finished:
+	if race.is_time_trial():
+		pos_label.text = "TIME TRIAL"
+		lap_label.text = "OUT LAP" if p.lap == 0 else "LAP %d" % p.lap
+		if race.state == RaceManager.State.RACING and p.lap >= 1:
+			time_label.text = RaceManager.format_time(race.race_time - p.lap_start_time)
+		else:
+			time_label.text = RaceManager.format_time(0.0)
+		last_label.text = "LAST " + RaceManager.format_time(p.last_lap_time)
+		best_label.text = "RECORD " + RaceManager.format_time(Settings.get_best_lap(race.track_id))
+	else:
+		pos_label.text = "%s/%d" % [RaceManager.ordinal(p.rank), total]
+		lap_label.text = "LAP %d/%d" % [clamp(max(p.lap, 1), 1, race.lap_count), race.lap_count]
+	if race.is_time_trial():
+		pass
+	elif p.has_finished:
 		time_label.text = RaceManager.format_time(p.finish_time)
 	elif race.state == RaceManager.State.RACING:
 		time_label.text = RaceManager.format_time(race.race_time - p.lap_start_time)
 	else:
 		time_label.text = RaceManager.format_time(0.0)
-	last_label.text = "LAST " + RaceManager.format_time(p.last_lap_time)
-	best_label.text = "BEST " + RaceManager.format_time(p.best_lap_time)
+	if not race.is_time_trial():
+		last_label.text = "LAST " + RaceManager.format_time(p.last_lap_time)
+		best_label.text = "BEST " + RaceManager.format_time(p.best_lap_time)
 	speed_label.text = "%d km/h" % int(p.velocity.length() / Car.PIXELS_PER_METER * 3.6)
 	# Messages: WRONG WAY has priority.
 	_blink += delta
@@ -136,11 +152,12 @@ func show_finish() -> void:
 
 func _refresh_results() -> void:
 	var p := race.player
-	place_label.text = "You finished %s!" % RaceManager.ordinal(race.finish_order.find(p) + 1)
+	place_label.text = "You finished %s!   %s - %s" % [RaceManager.ordinal(race.finish_order.find(p) + 1),
+		race.track.track_name, race.get_difficulty_name()]
 	for child in results_grid.get_children():
 		child.queue_free()
 	for h in ["POS", "DRIVER", "TIME", "BEST LAP"]:
-		_add_cell(h, Color(1, 0.85, 0.3), 22)
+		_add_cell(h, Color(1, 0.85, 0.3), 20)
 	# Finished cars in finish order, then the rest by live position.
 	var order: Array = race.finish_order.duplicate()
 	for c in race.get_standings():
@@ -158,7 +175,7 @@ func _refresh_results() -> void:
 		_add_cell(RaceManager.format_time(c.best_lap_time), col)
 
 
-func _add_cell(text: String, color: Color, size: int = 26) -> void:
+func _add_cell(text: String, color: Color, size: int = 22) -> void:
 	var l := Label.new()
 	l.text = text
 	l.modulate = color
