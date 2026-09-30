@@ -1,0 +1,66 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/race.gd" id="1_race"]
+[ext_resource type="PackedScene" path="res://scenes/track.tscn" id="2_track"]
+[ext_resource type="Script" path="res://scripts/skid_marks.gd" id="3_skid"]
+[ext_resource type="PackedScene" path="res://scenes/car.tscn" id="4_car"]
+[ext_resource type="Script" path="res://scripts/race_camera.gd" id="5_cam"]
+[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/touch_controls.tscn" id="7_touch"]
+[ext_resource type="AudioStream" path="res://audio/beep.wav" id="8_beep"]
+[ext_resource type="AudioStream" path="res://audio/go.wav" id="9_go"]
+
+[node name="Race" type="Node2D"]
+script = ExtResource("1_race")
+
+[node name="Track" parent="." instance=ExtResource("2_track")]
+
+[node name="SkidMarks" type="Node2D" parent="."]
+z_index = 1
+script = ExtResource("3_skid")
+
+[node name="Cars" type="Node2D" parent="."]
+z_index = 2
+
+[node name="Player" parent="Cars" instance=ExtResource("4_car")]
+driver = 0
+car_name = "YOU"
+body_color = Color(0.12, 0.53, 0.9, 1)
+car_number = 7
+
+[node name="CPU1" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Blaze"
+body_color = Color(0.9, 0.2, 0.18, 1)
+car_number = 3
+ai_speed_factor = 0.95
+ai_lane_offset = -25.0
+
+[node name="CPU2" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Bolt"
+body_color = Color(0.98, 0.78, 0.15, 1)
+stripe_color = Color(0.1, 0.1, 0.1, 1)
+car_number = 5
+ai_speed_factor = 0.92
+ai_lane_offset = 25.0
+
+[node name="CPU3" parent="Cars" instance=ExtResource("4_car")]
+car_name = "Frost"
+body_color = Color(0.2, 0.75, 0.45, 1)
+car_number = 9
+ai_speed_factor = 0.9
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("5_cam")
+target_path = NodePath("../Cars/Player")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="TouchControls" parent="." instance=ExtResource("7_touch")]
+
+[node name="Beep" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_beep")
+volume_db = -6.0
+
+[node name="GoBeep" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_go")
+volume_db = -4.0

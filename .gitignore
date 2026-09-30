@@ -1,0 +1,9 @@
+# Godot 4
+.godot/
+*.tmp
+/android/
+# local artifacts
+*.zip
+/tools/__pycache__/
+# local preview copies (committed copies live in screenshots/)
+/preview-*.png

@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/touch_controls.gd" id="1_tc"]
+[ext_resource type="Script" path="res://scripts/touch_button.gd" id="2_tb"]
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_tc")
+
+[node name="Left" type="TouchScreenButton" parent="."]
+position = Vector2(120, 600)
+passby_press = true
+action = "steer_left"
+script = ExtResource("2_tb")
+
+[node name="Right" type="TouchScreenButton" parent="."]
+position = Vector2(300, 600)
+passby_press = true
+action = "steer_right"
+script = ExtResource("2_tb")
+icon = 1
+
+[node name="Gas" type="TouchScreenButton" parent="."]
+position = Vector2(600, 600)
+passby_press = true
+action = "accelerate"
+script = ExtResource("2_tb")
+icon = 2
+
+[node name="Brake" type="TouchScreenButton" parent="."]
+position = Vector2(420, 600)
+passby_press = true
+action = "brake"
+script = ExtResource("2_tb")
+icon = 3

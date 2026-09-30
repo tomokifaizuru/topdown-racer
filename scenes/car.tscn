@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/car.gd" id="1_car"]
+[ext_resource type="AudioStream" path="res://audio/engine.wav" id="2_engine"]
+[ext_resource type="AudioStream" path="res://audio/skid.wav" id="3_skid"]
+[ext_resource type="AudioStream" path="res://audio/bump.wav" id="4_bump"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_car"]
+size = Vector2(48, 24)
+
+[node name="Car" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_car")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_car")
+
+[node name="EngineSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_engine")
+volume_db = -14.0
+
+[node name="SkidSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_skid")
+volume_db = -60.0
+
+[node name="BumpSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_bump")
+volume_db = -6.0
