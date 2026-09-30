@@ -92,7 +92,7 @@ body {
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-<style>body{background:#1a1c24;} #status{background:#1a1c24;}</style>
+<style>body{background:#1a1c24;} #status{background:#1a1c24;}</style><script>/* Topdown Racer: seamless music loops on the web. Godot 4.5.1 web sample playback loops a sound by restarting it on its ended event, which leaves a short gap. Long buffers (the menu music, over 20 s) are looped natively by Web Audio instead (sample-accurate). */(function(){var p=AudioBufferSourceNode.prototype,s=p.start;p.start=function(){try{if(this.buffer&&this.buffer.duration>20&&!this.loop){this.loop=true;this.loopStart=0;this.loopEnd=0;}}catch(e){}return s.apply(this,arguments);};})();</script>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -111,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":107764,"index.wasm":38034280},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1830268,"index.wasm":38034280},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 

@@ -1,16 +1,30 @@
-# Topdown Racer (v0.1)
+# Topdown Racer (v0.2)
 
 ### ▶ [Play now in your browser](https://tomokifaizuru.github.io/topdown-racer/)
 
 Works on phones (portrait or landscape, multi-touch) and desktop browsers.
 Tip: add `?demo` to the URL to watch the AI drive your car (`?demo&laps=1` for a quick race).
 
+![Title screen v0.2](screenshots/preview-v0.2-title.png)
+![Options v0.2](screenshots/preview-v0.2-options.png)
 ![Portrait gameplay](screenshots/preview-v0.1.png)
 ![Landscape gameplay](screenshots/preview-v0.1-landscape.png)
 
 A top-down 2D arcade racing prototype made with **Godot 4.5.1** (GL Compatibility renderer).
-One closed-loop track, you vs. 3 AI cars, 3 laps. All art and sounds are original and
-generated in code (Godot shapes + procedural WAVs), no third-party assets.
+One closed-loop track, you vs. 3 AI cars, 3 laps. All art and sound effects are original and
+generated in code (Godot shapes + procedural WAVs); the menu music is an original track by DJ.
+No third-party assets.
+
+## What's new in v0.2
+- **Menu music:** original title-screen BGM *"Pole Position Sunshine"* by **DJ** (135 BPM, D major,
+  64.000 s seamless loop; see `audio/music/NOTES.md`). It keeps playing in the menus and fades out when the race starts.
+  Browsers block sound until you interact with the page, so on the web the music starts on your
+  first tap / click / key press (a small "Tap anywhere to turn on the music" hint shows until then).
+- **Options** (title screen and pause menu): **BGM** and **SFX** volume sliders (0-100%), saved
+  between sessions in `user://settings.cfg` (in the browser this is stored in IndexedDB).
+- Audio buses **Music** and **SFX** (`default_bus_layout.tres`): menu music goes to Music;
+  engine, tyre squeal, bumps and countdown beeps go to SFX.
+- The title screen adjusts its layout for landscape phones.
 
 ## Features (v0.1)
 - Arcade car physics: acceleration, braking / reverse, speed-scaled steering, sideways grip,
@@ -57,6 +71,9 @@ the Inspector; changes on a node inside `race.tscn` apply only to that car, chan
 | `race.tscn` > **TouchControls** | `scripts/touch_controls.gd` | `show_mode` (AUTO / ALWAYS / NEVER), `button_radius`, `brake_scale`, `edge_margin`, `button_gap`, `opacity` |
 | `race.tscn` > SkidMarks | `scripts/skid_marks.gd` | `max_segments`, `mark_color`, `mark_width` |
 | `hud.tscn` > Root > Minimap | `scripts/minimap.gd` | colours, line width, dot size |
+| `music_player.tscn` > **Music** (autoload) | `scripts/music_player.gd` | `volume_db` (base loudness of the menu music), `fade_out_time`, `stream` |
+| `scripts/settings.gd` (autoload **Settings**) | - | default `music_volume` / `sfx_volume` (80%) for new players |
+| Audio bus layout (bottom panel **Audio**) | `default_bus_layout.tres` | Music / SFX bus levels and effects |
 
 Units are pixels and seconds; about 12 px = 1 m (820 px/s ≈ 246 km/h on the HUD).
 
@@ -69,13 +86,24 @@ to `docs/index.html` (the preset is already in `export_presets.cfg`), or headles
 godot --headless --path . --export-release "Web" docs/index.html
 ```
 
+### Web audio notes
+- The menu music is `audio/music/menu-bgm-loop.ogg`, imported with **Loop = on** (`.import`: `loop=true`).
+- Godot 4.5.1's web build (single-threaded, "sample" audio playback) normally loops a sound by
+  restarting it when it ends, which leaves a short gap. The export preset's *HTML > Head Include*
+  therefore has a tiny script that lets the browser loop long buffers (music, over 20 s) natively,
+  sample-accurately. If you create a new Web preset, copy that `head_include` over from `export_presets.cfg`.
+- Only the `.ogg` (+ `NOTES.md` and the small MIDI / script sources) is in the repo. The large WAV / MP3 / MP4
+  previews are git-ignored and excluded from the export.
+
 ## Project layout
 ```
 project.godot, export_presets.cfg, icon.svg
-scenes/   title, race, track, car, hud, touch_controls
+scenes/   title, race, track, car, hud, touch_controls, options_panel, music_player
 scripts/  gameplay scripts (one per scene/node type)
-ui/       theme.tres (buttons/panels/labels)
+ui/       theme.tres (buttons/panels/labels/sliders)
 audio/    procedural SFX (engine loop, skid loop, beeps, bump)
+audio/music/  menu BGM by DJ (menu-bgm-loop.ogg) + NOTES.md and sources
+default_bus_layout.tres  audio buses: Master, Music, SFX
 tools/    track_design.py (curve generator/checker), make_sfx.py, sim_test.gd (headless AI race test)
 docs/     exported web build (GitHub Pages)
 ```

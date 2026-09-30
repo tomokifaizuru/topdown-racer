@@ -7,11 +7,16 @@ config_version=5
 
 config/name="Topdown Racer"
 config/description="Top-down 2D arcade racing prototype"
-config/version="0.1"
+config/version="0.2"
 run/main_scene="res://scenes/title.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 boot_splash/bg_color=Color(0.1, 0.11, 0.14, 1)
 config/icon="res://icon.svg"
+
+[autoload]
+
+Settings="*res://scripts/settings.gd"
+Music="*res://scenes/music_player.tscn"
 
 [display]
 

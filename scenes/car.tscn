@@ -21,11 +21,14 @@ shape = SubResource("RectangleShape2D_car")
 [node name="EngineSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_engine")
 volume_db = -14.0
+bus = &"SFX"
 
 [node name="SkidSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_skid")
 volume_db = -60.0
+bus = &"SFX"
 
 [node name="BumpSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_bump")
 volume_db = -6.0
+bus = &"SFX"

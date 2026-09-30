@@ -31,6 +31,8 @@ func setup(r: RaceManager) -> void:
 	minimap.setup(r.track, r.cars, r.player)
 	pause_button.pressed.connect(_on_pause)
 	%ResumeButton.pressed.connect(_on_resume)
+	%PauseOptionsButton.pressed.connect(_on_pause_options)
+	%OptionsPanel.closed.connect(_on_options_closed)
 	%PauseRestartButton.pressed.connect(func(): restart_pressed.emit())
 	%PauseMenuButton.pressed.connect(func(): menu_pressed.emit())
 	%RestartButton.pressed.connect(func(): restart_pressed.emit())
@@ -54,7 +56,19 @@ func _on_resume() -> void:
 	pause_toggled.emit(false)
 
 
+func _on_pause_options() -> void:
+	pause_panel.visible = false
+	%OptionsPanel.open()
+
+
+func _on_options_closed() -> void:
+	pause_panel.visible = true
+	%PauseOptionsButton.grab_focus()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if %OptionsPanel.visible:
+		return
 	if race and event.is_action_pressed("pause"):
 		if pause_panel.visible:
 			_on_resume()

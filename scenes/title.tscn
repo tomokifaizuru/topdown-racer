@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/title.gd" id="1_title"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://scripts/title_background.gd" id="3_bg"]
+[ext_resource type="PackedScene" path="res://scenes/options_panel.tscn" id="4_opt"]
 
 [node name="Title" type="Control"]
 layout_mode = 3
@@ -49,6 +50,7 @@ theme_override_constants/separation = 16
 alignment = 1
 
 [node name="TitleLabel" type="Label" parent="Center/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.25, 1)
 theme_override_constants/outline_size = 18
@@ -76,15 +78,27 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 56
 text = "PLAY"
 
-[node name="FullscreenButton" type="Button" parent="Center/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(340, 70)
+[node name="SmallButtons" type="HBoxContainer" parent="Center/VBox"]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 28
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="OptionsButton" type="Button" parent="Center/VBox/SmallButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 76)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Options"
+
+[node name="FullscreenButton" type="Button" parent="Center/VBox/SmallButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 76)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "Fullscreen"
 
 [node name="HintLabel" type="Label" parent="Center/VBox"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(620, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
@@ -109,5 +123,23 @@ offset_bottom = -14.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 30
-text = "v0.1"
+text = "v0.2"
 horizontal_alignment = 2
+
+[node name="SoundHint" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 18.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.6, 1)
+theme_override_font_sizes/font_size = 24
+text = "Tap anywhere to turn on the music"
+horizontal_alignment = 1
+
+[node name="OptionsPanel" parent="." instance=ExtResource("4_opt")]
+unique_name_in_owner = true
+layout_mode = 1

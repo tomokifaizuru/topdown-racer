@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
 [ext_resource type="Theme" path="res://ui/theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://scripts/minimap.gd" id="3_minimap"]
+[ext_resource type="PackedScene" path="res://scenes/options_panel.tscn" id="4_opt"]
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
@@ -158,9 +159,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -210.0
+offset_top = -262.0
 offset_right = 200.0
-offset_bottom = 210.0
+offset_bottom = 262.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -180,6 +181,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
 text = "Resume"
+
+[node name="PauseOptionsButton" type="Button" parent="Root/PausePanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+text = "Options"
 
 [node name="PauseRestartButton" type="Button" parent="Root/PausePanel/VBox"]
 unique_name_in_owner = true
@@ -255,3 +262,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 84)
 layout_mode = 2
 text = "Menu"
+
+[node name="OptionsPanel" parent="Root" instance=ExtResource("4_opt")]
+unique_name_in_owner = true
+layout_mode = 1

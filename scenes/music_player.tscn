@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/music_player.gd" id="1_music"]
+[ext_resource type="AudioStream" path="res://audio/music/menu-bgm-loop.ogg" id="2_bgm"]
+
+[node name="Music" type="AudioStreamPlayer"]
+process_mode = 3
+stream = ExtResource("2_bgm")
+volume_db = -3.0
+bus = &"Music"
+script = ExtResource("1_music")

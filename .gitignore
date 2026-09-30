@@ -7,3 +7,10 @@
 /tools/__pycache__/
 # local preview copies (committed copies live in screenshots/)
 /preview-*.png
+# large music previews / masters (kept locally, not needed in the game)
+/audio/music/*.wav
+/audio/music/*.wav.import
+/audio/music/*.mp3
+/audio/music/*.mp3.import
+/audio/music/*.mp4
+/preview-*.png.import
